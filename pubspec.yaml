@@ -18,7 +18,7 @@ dependencies:
   intl: ^0.18.0
   audioplayers: ^6.0.0
   shared_preferences: ^2.2.3
-  getwidget: ^4.0.0
+  getwidget: ^7.0.0
   device_info_plus: ^10.1.0
   webview_flutter: ^4.8.0
 

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 
 class FlowerDetailScreen extends StatelessWidget {
   final Map<String, String> flowerData;
 
-  const FlowerDetailScreen({Key? key, required this.flowerData}) : super(key: key);
+  const FlowerDetailScreen({super.key, required this.flowerData});
+
+  // 1. Fungsi untuk kembali dibuat terpisah
+  void _kembali(BuildContext context) {
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,15 +28,15 @@ class FlowerDetailScreen extends StatelessWidget {
               title: Text(
                 title,
                 style: const TextStyle(
-                  shadows: [
-                    Shadow(blurRadius: 8, color: Colors.black54)
-                  ]
+                    shadows: [
+                      Shadow(blurRadius: 8, color: Colors.black54)
+                    ]
                 ),
               ),
               background: Image.asset(
                 image,
                 fit: BoxFit.cover,
-                color: Colors.black.withOpacity(0.3),
+                color: const Color.fromARGB(77, 0, 0, 0),
                 colorBlendMode: BlendMode.darken,
               ),
             ),
@@ -58,6 +64,16 @@ class FlowerDetailScreen extends StatelessWidget {
                       color: Colors.black54,
                     ),
                     textAlign: TextAlign.justify,
+                  ),
+                  const SizedBox(height: 24),
+                  // 2. GFButton memanggil fungsi _kembali
+                  GFButton(
+                    onPressed: () {
+                      _kembali(context);
+                    },
+                    text: "Kembali",
+                    blockButton: true,
+                    color: Colors.teal[400]!,
                   ),
                 ],
               ),
