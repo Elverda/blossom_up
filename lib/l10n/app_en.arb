@@ -1,0 +1,18 @@
+{
+  "aboutThisFlower": "About This Flower",
+  "backButton": "Back",
+  "shopTitle": "BLOSSOM SHOP",
+  "logout": "Logout",
+  "logoutQuestion": "Logout from Account?",
+  "logoutConfirmation": "Are you sure you want to end this session?",
+  "cancel": "Cancel",
+  "itemAddedToCart": "{itemName} added!",
+  "description": "Description",
+  "meaningAndSymbolism": "Meaning & Symbolism",
+  "suitableFor": "Suitable For",
+  "mainFlowerType": "Main Flower Type",
+  "addToCart": "Add to Cart",
+  "searchFlowers": "Search for flowers...",
+  "welcome": "Welcome,",
+  "tapFlowerHint": "Tap a flower to see its description and meaning"
+}

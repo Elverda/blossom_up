@@ -1,0 +1,18 @@
+{
+  "aboutThisFlower": "Tentang Bunga Ini",
+  "backButton": "Kembali",
+  "shopTitle": "BLOSSOM SHOP",
+  "logout": "Keluar",
+  "logoutQuestion": "Keluar dari Akun?",
+  "logoutConfirmation": "Anda yakin ingin keluar dari sesi ini?",
+  "cancel": "Batal",
+  "itemAddedToCart": "{itemName} ditambahkan!",
+  "description": "Deskripsi",
+  "meaningAndSymbolism": "Makna & Simbolisme",
+  "suitableFor": "Cocok Untuk",
+  "mainFlowerType": "Jenis Bunga Utama",
+  "addToCart": "Tambah ke Keranjang",
+  "searchFlowers": "Cari bunga...",
+  "welcome": "Selamat Datang,",
+  "tapFlowerHint": "Ketuk bunga untuk melihat deskripsi dan makna"
+}

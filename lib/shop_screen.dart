@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/login_page.dart';
+import 'package:solo/main.dart';
 import 'package:solo/search.dart';
 import 'cart_screen.dart';
 
@@ -137,7 +139,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
         content: Row(children: [
           const Icon(Icons.check_circle_outline, color: Colors.white),
           const SizedBox(width: 12),
-          Expanded(child: Text('${item["nama"]} ditambahkan!')),
+          Expanded(child: Text(AppLocalizations.of(context)!.itemAddedToCart(item["nama"]))),
         ]),
         backgroundColor: Colors.green.shade600,
         behavior: SnackBarBehavior.floating,
@@ -175,13 +177,13 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text('Keluar dari Akun?', textAlign: TextAlign.center),
-          content: const Text('Anda yakin ingin keluar dari sesi ini?', textAlign: TextAlign.center),
+          title: Text(AppLocalizations.of(context)!.logoutQuestion, textAlign: TextAlign.center),
+          content: Text(AppLocalizations.of(context)!.logoutConfirmation, textAlign: TextAlign.center),
           actionsAlignment: MainAxisAlignment.center,
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+              child: Text(AppLocalizations.of(context)!.cancel, style: const TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -192,7 +194,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red[400]),
-              child: const Text('Keluar'),
+              child: Text(AppLocalizations.of(context)!.logout),
             ),
           ],
         );
@@ -288,7 +290,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 24),
 
                           _buildInfoSection(
-                            "Deskripsi",
+                            AppLocalizations.of(context)!.description,
                             item["deskripsi"],
                             Icons.info_outline,
                             Colors.blue,
@@ -297,7 +299,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 20),
 
                           _buildInfoSection(
-                            "Makna & Simbolisme",
+                            AppLocalizations.of(context)!.meaningAndSymbolism,
                             item["makna"],
                             Icons.favorite_outline,
                             Colors.red,
@@ -306,7 +308,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 20),
 
                           _buildInfoSection(
-                            "Cocok Untuk",
+                            AppLocalizations.of(context)!.suitableFor,
                             item["cocokUntuk"],
                             Icons.event_available,
                             Colors.green,
@@ -315,7 +317,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 20),
 
                           _buildInfoSection(
-                            "Jenis Bunga Utama",
+                            AppLocalizations.of(context)!.mainFlowerType,
                             item["jenisUtama"],
                             Icons.local_florist,
                             Colors.purple,
@@ -329,7 +331,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                                 child: OutlinedButton.icon(
                                   onPressed: () => Navigator.pop(context),
                                   icon: const Icon(Icons.arrow_back),
-                                  label: const Text('Kembali'),
+                                  label: Text(AppLocalizations.of(context)!.backButton),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: Colors.grey[600],
                                     side: BorderSide(color: Colors.grey[300]!),
@@ -349,7 +351,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                                     Navigator.pop(context);
                                   },
                                   icon: const Icon(Icons.add_shopping_cart),
-                                  label: const Text('Tambah ke Keranjang'),
+                                  label: Text(AppLocalizations.of(context)!.addToCart),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.purple[400],
                                     foregroundColor: Colors.white,
@@ -523,6 +525,22 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
             elevation: 2,
             backgroundColor: Colors.purple[400],
             actions: [
+              PopupMenuButton<Locale>(
+                icon: const Icon(Icons.language),
+                onSelected: (Locale locale) {
+                  SoloApp.setLocale(context, locale);
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<Locale>>[
+                  const PopupMenuItem<Locale>(
+                    value: Locale('en', ''),
+                    child: Text('English'),
+                  ),
+                  const PopupMenuItem<Locale>(
+                    value: Locale('id', ''),
+                    child: Text('Indonesia'),
+                  ),
+                ],
+              ),
               Stack(
                 children: [
                   IconButton(
@@ -564,7 +582,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
             flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
               title: Text(
-                'BLOSSOM SHOP',
+                AppLocalizations.of(context)!.shopTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -603,11 +621,11 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                       },
                       onSubmitted: (value) {},
                       searchBarOpen: (toggle) {},
-                      helpText: "Cari bunga...",
+                      helpText: AppLocalizations.of(context)!.searchFlowers,
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      'Selamat Datang,',
+                      AppLocalizations.of(context)!.welcome,
                       style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                     ),
                     Text(
@@ -632,7 +650,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Ketuk bunga untuk melihat deskripsi dan makna',
+                              AppLocalizations.of(context)!.tapFlowerHint,
                               style: TextStyle(
                                 color: Colors.purple[700],
                                 fontSize: 12,

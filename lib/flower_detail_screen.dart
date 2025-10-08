@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:solo/l10n/app_localizations.dart';
 
 class FlowerDetailScreen extends StatelessWidget {
   final Map<String, String> flowerData;
 
   const FlowerDetailScreen({super.key, required this.flowerData});
 
-  // 1. Fungsi untuk kembali dibuat terpisah
   void _kembali(BuildContext context) {
     Navigator.pop(context);
   }
@@ -47,9 +47,9 @@ class FlowerDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Tentang Bunga Ini',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.aboutThisFlower,
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -66,12 +66,11 @@ class FlowerDetailScreen extends StatelessWidget {
                     textAlign: TextAlign.justify,
                   ),
                   const SizedBox(height: 24),
-                  // 2. GFButton memanggil fungsi _kembali
                   GFButton(
                     onPressed: () {
                       _kembali(context);
                     },
-                    text: "Kembali",
+                    text: AppLocalizations.of(context)!.backButton,
                     blockButton: true,
                     color: Colors.teal[400]!,
                   ),
