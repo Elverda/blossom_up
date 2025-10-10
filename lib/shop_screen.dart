@@ -214,9 +214,9 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
           maxChildSize: 0.9,
           builder: (context, scrollController) {
             return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
                 ),
@@ -262,7 +262,6 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                                       style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -474,7 +473,6 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
-                      color: Colors.black87,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -515,7 +513,6 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -523,8 +520,27 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
             floating: false,
             pinned: true,
             elevation: 2,
-            backgroundColor: Colors.purple[400],
             actions: [
+              PopupMenuButton<ThemeMode>(
+                icon: const Icon(Icons.brightness_4_outlined),
+                onSelected: (ThemeMode themeMode) {
+                  SoloApp.setTheme(context, themeMode);
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<ThemeMode>>[
+                  const PopupMenuItem<ThemeMode>(
+                    value: ThemeMode.light,
+                    child: Text('Light'),
+                  ),
+                  const PopupMenuItem<ThemeMode>(
+                    value: ThemeMode.dark,
+                    child: Text('Dark'),
+                  ),
+                  const PopupMenuItem<ThemeMode>(
+                    value: ThemeMode.system,
+                    child: Text('System'),
+                  ),
+                ],
+              ),
               PopupMenuButton<Locale>(
                 icon: const Icon(Icons.language),
                 onSelected: (Locale locale) {
@@ -633,7 +649,6 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 12),

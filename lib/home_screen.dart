@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/login_page.dart';
 import 'package:solo/flower_detail_screen.dart';
 
@@ -16,43 +17,57 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  final List<Map<String, dynamic>> flowerFacts = [
-    {
-      "title": "Mawar: Simbol Cinta Universal",
-      "subtitle": "Mawar merah adalah lambang cinta yang paling dikenal di seluruh dunia. Bunga ini sering diberikan sebagai hadiah untuk mengungkapkan perasaan kasih sayang, gairah, dan rasa hormat. Ada lebih dari 150 spesies mawar di seluruh dunia.",
-      "image": "assets/images/mawarr.jpeg",
-      "gradient": [Color(0xFFE91E63), Color(0xFFAD1457)],
-      "icon": Icons.favorite,
-    },
-    {
-      "title": "Tulip: Pernah Lebih Berharga dari Emas",
-      "subtitle": "Pada abad ke-17 di Belanda, selama periode yang dikenal sebagai 'Tulip Mania', beberapa jenis umbi tulip langka harganya bisa setara dengan sebuah rumah mewah di Amsterdam. Fenomena ini dianggap sebagai salah satu gelembung spekulatif pertama dalam sejarah.",
-      "image": "assets/images/tulip.jpeg",
-      "gradient": [Color(0xFF9C27B0), Color(0xFF6A1B9A)],
-      "icon": Icons.diamond,
-    },
-    {
-      "title": "Anggrek: Salah Satu Keluarga Bunga Terbesar",
-      "subtitle": "Dengan lebih dari 25.000 spesies yang telah diidentifikasi, anggrek adalah salah satu keluarga tanaman berbunga terbesar dan paling beragam di dunia. Mereka dapat ditemukan di hampir setiap habitat di bumi.",
-      "image": "assets/images/anggrek.jpeg",
-      "gradient": [Color(0xFF3F51B5), Color(0xFF283593)],
-      "icon": Icons.nature,
-    },
-    {
-      "title": "Bunga Matahari: Selalu Menghadap Matahari",
-      "subtitle": "Bunga matahari muda menunjukkan perilaku unik yang disebut heliotropisme, di mana kuncupnya akan mengikuti pergerakan matahari dari timur ke barat setiap hari. Namun, saat dewasa, sebagian besar akan berhenti dan menghadap ke timur.",
-      "image": "assets/images/Matahari.jpeg",
-      "gradient": [Color(0xFFFF9800), Color(0xFFE65100)],
-      "icon": Icons.wb_sunny,
-    },
-    {
-      "title": "Lavender: Bukan Hanya untuk Aroma",
-      "subtitle": "Selain digunakan secara luas dalam aromaterapi untuk relaksasi, lavender juga secara historis digunakan sebagai antiseptik dan anti-inflamasi. Minyaknya dapat dioleskan untuk menenangkan sengatan serangga atau luka bakar ringan.",
-      "image": "assets/images/lavender.jpeg",
-      "gradient": [Color(0xFF2196F3), Color(0xFF1565C0)],
-      "icon": Icons.spa,
-    },
-  ];
+  List<Map<String, dynamic>> _getFlowerFacts(BuildContext context) {
+    return [
+      {
+        "key": "rose",
+        "image": "assets/images/mawarr.jpeg",
+        "gradient": [const Color(0xFFE91E63), const Color(0xFFAD1457)],
+        "icon": Icons.favorite,
+      },
+      {
+        "key": "tulip",
+        "image": "assets/images/tulip.jpeg",
+        "gradient": [const Color(0xFF9C27B0), const Color(0xFF6A1B9A)],
+        "icon": Icons.diamond,
+      },
+      {
+        "key": "orchid",
+        "image": "assets/images/anggrek.jpeg",
+        "gradient": [const Color(0xFF3F51B5), const Color(0xFF283593)],
+        "icon": Icons.nature,
+      },
+      {
+        "key": "sunflower",
+        "image": "assets/images/Matahari.jpeg",
+        "gradient": [const Color(0xFFFF9800), const Color(0xFFE65100)],
+        "icon": Icons.wb_sunny,
+      },
+      {
+        "key": "lavender",
+        "image": "assets/images/lavender.jpeg",
+        "gradient": [const Color(0xFF2196F3), const Color(0xFF1565C0)],
+        "icon": Icons.spa,
+      },
+    ];
+  }
+
+  String _getTranslatedFact(BuildContext context, String key, String field) {
+    switch (key) {
+      case 'rose':
+        return field == 'title' ? AppLocalizations.of(context)!.roseTitle : AppLocalizations.of(context)!.roseSubtitle;
+      case 'tulip':
+        return field == 'title' ? AppLocalizations.of(context)!.tulipTitle : AppLocalizations.of(context)!.tulipSubtitle;
+      case 'orchid':
+        return field == 'title' ? AppLocalizations.of(context)!.orchidTitle : AppLocalizations.of(context)!.orchidSubtitle;
+      case 'sunflower':
+        return field == 'title' ? AppLocalizations.of(context)!.sunflowerTitle : AppLocalizations.of(context)!.sunflowerSubtitle;
+      case 'lavender':
+        return field == 'title' ? AppLocalizations.of(context)!.lavenderTitle : AppLocalizations.of(context)!.lavenderSubtitle;
+      default:
+        return '';
+    }
+  }
 
   @override
   void initState() {
@@ -88,6 +103,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _showLogoutDialog() {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -97,14 +115,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFFE3F2FD),
-                  Color(0xFFF3E5F5),
-                ],
-              ),
+              color: theme.dialogBackgroundColor,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -112,31 +123,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2196F3).withOpacity(0.1),
+                    color: theme.primaryColor.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.logout_rounded,
                     size: 32,
-                    color: Color(0xFF2196F3),
+                    color: theme.primaryColor,
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Keluar dari Aplikasi?',
+                Text(
+                  AppLocalizations.of(context)!.logoutAppQuestion,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1565C0),
+                    color: theme.textTheme.titleLarge?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Anda yakin ingin keluar dari sesi ini?',
+                  AppLocalizations.of(context)!.logoutConfirmation,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey[600],
+                    color: theme.textTheme.bodySmall?.color,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -152,10 +163,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Batal',
+                        child: Text(
+                          AppLocalizations.of(context)!.cancel,
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: theme.hintColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -172,15 +183,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2196F3),
+                          backgroundColor: Colors.red[400],
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
-                          'Keluar',
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)!.logout,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                           ),
@@ -198,13 +209,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildFactCard(Map<String, dynamic> fact, int index) {
+    final title = _getTranslatedFact(context, fact['key'], 'title');
+    final subtitle = _getTranslatedFact(context, fact['key'], 'subtitle');
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: fact['gradient'][0].withOpacity(0.3),
+            color: isDarkMode ? Colors.black.withOpacity(0.4) : (fact['gradient'][0] as Color).withOpacity(0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -215,8 +231,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         child: InkWell(
           onTap: () {
             Map<String, String> flowerData = {
-              'title': fact['title'].toString(),
-              'subtitle': fact['subtitle'].toString(),
+              'title': title,
+              'subtitle': subtitle,
               'image': fact['image'].toString(),
             };
 
@@ -243,17 +259,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(20),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: fact['gradient'][0].withOpacity(0.2),
+                color: (fact['gradient'][0] as Color).withOpacity(isDarkMode ? 0.4 : 0.2),
                 width: 1,
               ),
             ),
             child: Column(
               children: [
-                // Image section with overlay
-                Container(
+                SizedBox(
                   height: 180,
                   width: double.infinity,
                   child: Stack(
@@ -270,7 +285,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      // Gradient overlay
                       Container(
                         height: 180,
                         decoration: BoxDecoration(
@@ -288,18 +302,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                      // Icon badge
                       Positioned(
                         top: 16,
                         left: 16,
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: fact['gradient']),
+                            gradient: LinearGradient(colors: fact['gradient'] as List<Color>),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: fact['gradient'][0].withOpacity(0.4),
+                                color: (fact['gradient'][0] as Color).withOpacity(0.4),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -312,23 +325,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                         ),
                       ),
-                      // Read more indicator
                       Positioned(
                         top: 16,
                         right: 16,
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: theme.cardColor.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Baca',
+                                AppLocalizations.of(context)!.read,
                                 style: TextStyle(
-                                  color: fact['gradient'][0],
+                                  color: fact['gradient'][0] as Color,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -336,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               const SizedBox(width: 4),
                               Icon(
                                 Icons.arrow_forward_ios,
-                                color: fact['gradient'][0],
+                                color: fact['gradient'][0] as Color,
                                 size: 12,
                               ),
                             ],
@@ -346,44 +358,42 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ],
                   ),
                 ),
-                // Content section
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        fact['title']!,
+                        title,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
-                          color: fact['gradient'][1],
+                          color: fact['gradient'][1] as Color,
                           letterSpacing: -0.2,
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        fact['subtitle']!,
+                        subtitle,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
+                          color: theme.textTheme.bodySmall?.color,
                           height: 1.5,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Read more button
                       Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: fact['gradient']),
+                          gradient: LinearGradient(colors: fact['gradient'] as List<Color>),
                           borderRadius: BorderRadius.circular(25),
                         ),
                         child: ElevatedButton(
                           onPressed: () {
                             Map<String, String> flowerData = {
-                              'title': fact['title'].toString(),
-                              'subtitle': fact['subtitle'].toString(),
+                              'title': title,
+                              'subtitle': subtitle,
                               'image': fact['image'].toString(),
                             };
 
@@ -417,17 +427,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
+                            children: [
                               Text(
-                                'Selengkapnya',
-                                style: TextStyle(
+                                AppLocalizations.of(context)!.readMore,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward, color: Colors.white, size: 16),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward, color: Colors.white, size: 16),
                             ],
                           ),
                         ),
@@ -445,8 +455,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final flowerFacts = _getFlowerFacts(context);
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
@@ -460,7 +473,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Container(
                   margin: const EdgeInsets.only(right: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: theme.cardColor.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
@@ -471,24 +484,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.logout_rounded, color: Color(0xFF2196F3)),
-                    tooltip: 'Logout',
+                    icon: Icon(Icons.logout_rounded, color: theme.primaryColor),
+                    tooltip: AppLocalizations.of(context)!.logout,
                     onPressed: _showLogoutDialog,
                   ),
                 ),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF2196F3),
-                        Color(0xFF21CBF3),
-                        Color(0xFF9C27B0),
-                      ],
-                      stops: [0.0, 0.6, 1.0],
+                      colors: isDarkMode
+                          ? [Colors.grey[900]!, Colors.purple[900]!, Colors.blue[900]!]
+                          : [
+                              const Color(0xFF2196F3),
+                              const Color(0xFF21CBF3),
+                              const Color(0xFF9C27B0),
+                            ],
+                      stops: const [0.0, 0.6, 1.0],
                     ),
                   ),
                   child: Stack(
@@ -534,9 +549,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            const Text(
-                              'Dunia Bunga',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.flowerWorldTitle,
+                              style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -545,7 +560,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Jelajahi keajaiban alam',
+                              AppLocalizations.of(context)!.flowerWorldSubtitle,
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white.withOpacity(0.9),
@@ -574,11 +589,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   margin: const EdgeInsets.all(20),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF2196F3).withOpacity(0.1),
+                        color: theme.primaryColor.withOpacity(0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
@@ -601,31 +616,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Selamat Datang,',
+                            Text(
+                              AppLocalizations.of(context)!.welcome,
                               style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey,
+                                color: theme.hintColor,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               widget.email,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF2196F3),
+                                color: theme.primaryColor,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Temukan fakta menarik tentang bunga-bunga indah',
+                              AppLocalizations.of(context)!.discoverFacts,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey[600],
+                                color: theme.textTheme.bodySmall?.color,
                                 height: 1.3,
                               ),
                             ),

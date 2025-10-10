@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/models/admin.dart';
 import 'package:solo/models/pengguna.dart';
 import 'package:solo/models/user.dart';
@@ -70,21 +71,21 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _login() async {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
+    final l10n = AppLocalizations.of(context)!;
 
     if (username.isEmpty || password.isEmpty) {
-      _showSnackBar('Username dan password harus diisi', Colors.red);
+      _showSnackBar(l10n.usernamePasswordRequired, Colors.red);
       return;
     }
 
     setState(() => _isLoading = true);
-
 
     await Future.delayed(const Duration(seconds: 2));
 
     if (_selectedRole == 'User') {
       final currentUser = User("U_dynamic", username, password, username);
 
-      _showSnackBar('Login berhasil untuk: ${currentUser.username}', Colors.green);
+      _showSnackBar(l10n.loginSuccessFor(currentUser.username), Colors.green);
 
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
@@ -103,7 +104,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       }
 
       if (foundAdmin != null && foundAdmin.verifikasiPassword(password)) {
-        _showSnackBar('Login berhasil sebagai Admin', Colors.green);
+        _showSnackBar(l10n.loginSuccessAsAdmin, Colors.green);
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
         Navigator.pushReplacement(
@@ -111,7 +112,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           MaterialPageRoute(builder: (context) => AdminDashboardScreen(admin: foundAdmin!)),
         );
       } else {
-        _showSnackBar('Username atau password Admin salah', Colors.red);
+        _showSnackBar(l10n.adminLoginFailed, Colors.red);
       }
     }
 
@@ -141,12 +142,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
     bool obscureText = false,
     Widget? suffixIcon,
   }) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -168,26 +173,26 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             margin: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.purple.withOpacity(0.1),
+              color: theme.primaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Colors.purple[600], size: 20),
+            child: Icon(icon, color: theme.primaryColor, size: 20),
           ),
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[500]),
+          hintStyle: TextStyle(color: theme.hintColor),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: theme.cardColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+            borderSide: BorderSide(color: isDarkMode ? Colors.grey[800]! : Colors.grey[200]!, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.purple[400]!, width: 2),
+            borderSide: BorderSide(color: theme.primaryColor, width: 2),
           ),
           suffixIcon: suffixIcon,
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -198,17 +203,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.purple[50]!,
-              Colors.pink[50]!,
-              Colors.white,
-            ],
+            colors: isDarkMode
+                ? [Colors.grey[900]!, Colors.purple[900]!, Colors.black]
+                : [Colors.purple[50]!, Colors.pink[50]!, Colors.white],
           ),
         ),
         child: SafeArea(
@@ -250,9 +257,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               size: 32,
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'SELAMAT DATANG',
-                              style: TextStyle(
+                            Text(
+                              l10n.welcomeHeader,
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -262,7 +269,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Silakan masuk ke akun Anda',
+                              l10n.pleaseLogin,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white.withOpacity(0.9),
@@ -311,7 +318,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -326,12 +333,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         segments: [
                           ButtonSegment<String>(
                             value: 'User',
-                            label: const Text('User', style: TextStyle(fontWeight: FontWeight.w600)),
+                            label: Text(l10n.roleUser, style: const TextStyle(fontWeight: FontWeight.w600)),
                             icon: const Icon(Icons.person_outline),
                           ),
                           ButtonSegment<String>(
                             value: 'Admin',
-                            label: const Text('Admin', style: TextStyle(fontWeight: FontWeight.w600)),
+                            label: Text(l10n.roleAdmin, style: const TextStyle(fontWeight: FontWeight.w600)),
                             icon: const Icon(Icons.admin_panel_settings_outlined),
                           ),
                         ],
@@ -343,9 +350,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         },
                         style: SegmentedButton.styleFrom(
                           backgroundColor: Colors.transparent,
-                          selectedBackgroundColor: Colors.purple[100],
-                          selectedForegroundColor: Colors.purple[700],
-                          foregroundColor: Colors.grey[600],
+                          selectedBackgroundColor: theme.primaryColor.withOpacity(0.2),
+                          selectedForegroundColor: theme.primaryColor,
+                          foregroundColor: theme.hintColor,
                           side: BorderSide.none,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -360,20 +367,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     child: Column(
                       children: [
                         _buildTextField(
+                          context: context,
                           controller: _usernameController,
-                          hintText: 'Masukkan username Anda',
+                          hintText: l10n.enterUsername,
                           icon: Icons.person_outline,
                         ),
                         const SizedBox(height: 20),
                         _buildTextField(
+                          context: context,
                           controller: _passwordController,
-                          hintText: 'Masukkan password Anda',
+                          hintText: l10n.enterPassword,
                           icon: Icons.lock_outline,
                           obscureText: !_isPasswordVisible,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: Colors.grey[600],
+                              color: theme.hintColor,
                             ),
                             onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                           ),
@@ -423,14 +432,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             strokeWidth: 2,
                           ),
                         )
-                            : const Row(
+                            : Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.login, color: Colors.white),
-                            SizedBox(width: 8),
+                            const Icon(Icons.login, color: Colors.white),
+                            const SizedBox(width: 8),
                             Text(
-                              'Masuk',
-                              style: TextStyle(
+                              l10n.loginButton,
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -452,9 +461,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Belum punya akun? ',
+                            l10n.dontHaveAccount,
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: theme.hintColor,
                               fontSize: 16,
                             ),
                           ),
@@ -484,9 +493,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: const Text(
-                                'Daftar Sekarang',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.registerNow,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,

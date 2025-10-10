@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/payment_success_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -74,6 +76,9 @@ class _PaymentScreenState extends State<PaymentScreen>
   }
 
   void _processPayment() {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -84,7 +89,7 @@ class _PaymentScreenState extends State<PaymentScreen>
             padding: const EdgeInsets.all(32.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              color: Colors.white,
+              color: theme.dialogBackgroundColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -96,35 +101,34 @@ class _PaymentScreenState extends State<PaymentScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Animated loading icon
                 Container(
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00BCD4).withOpacity(0.1),
+                    color: theme.primaryColor.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Center(
+                  child: Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00BCD4)),
+                      valueColor: AlwaysStoppedAnimation<Color>(theme.primaryColor),
                       strokeWidth: 3,
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  "Memproses Pembayaran",
+                Text(
+                  l10n.processingPayment,
                   style: TextStyle(
-                    color: Color(0xFF00695C),
+                    color: theme.textTheme.titleLarge?.color,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "Mohon tunggu sebentar...",
+                  l10n.pleaseWait,
                   style: TextStyle(
-                    color: Colors.grey[600],
+                    color: theme.textTheme.bodySmall?.color,
                     fontSize: 14,
                   ),
                 ),
@@ -137,7 +141,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF26A69A).withOpacity(0.3),
+                        color: theme.primaryColor.withOpacity(0.3),
                         shape: BoxShape.circle,
                       ),
                     );
@@ -165,15 +169,20 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final locale = Localizations.localeOf(context).toString();
+    final currencyFormatter = NumberFormat.currency(locale: locale, symbol: 'Rp ', decimalDigits: 0);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FFFE),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         leading: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -184,14 +193,14 @@ class _PaymentScreenState extends State<PaymentScreen>
             ],
           ),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF00695C)),
+            icon: Icon(Icons.arrow_back_ios_new, color: theme.primaryColor),
             onPressed: () => Navigator.pop(context),
           ),
         ),
-        title: const Text(
-          'Pembayaran',
+        title: Text(
+          l10n.payment,
           style: TextStyle(
-            color: Color(0xFF00695C),
+            color: theme.textTheme.titleLarge?.color,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -204,18 +213,17 @@ class _PaymentScreenState extends State<PaymentScreen>
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF00BCD4),
-                  Color(0xFF26A69A),
-                ],
+                colors: isDarkMode
+                    ? [Colors.teal[800]!, Colors.cyan[800]!]
+                    : [const Color(0xFF00BCD4), const Color(0xFF26A69A)],
               ),
               borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF00BCD4).withOpacity(0.3),
+                  color: isDarkMode ? Colors.black.withOpacity(0.4) : const Color(0xFF00BCD4).withOpacity(0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -223,7 +231,6 @@ class _PaymentScreenState extends State<PaymentScreen>
             ),
             child: Stack(
               children: [
-                // Decorative circles
                 Positioned(
                   top: -20,
                   right: -20,
@@ -261,9 +268,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                             size: 24,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
-                            'TOTAL TAGIHAN',
-                            style: TextStyle(
+                          Text(
+                            l10n.totalBill,
+                            style: const TextStyle(
                               fontSize: 14,
                               color: Colors.white,
                               letterSpacing: 1.5,
@@ -278,7 +285,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                         child: ScaleTransition(
                           scale: _pulseAnimation,
                           child: Text(
-                            'Rp ${widget.totalPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                            currencyFormatter.format(widget.totalPrice),
                             style: const TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
@@ -310,22 +317,22 @@ class _PaymentScreenState extends State<PaymentScreen>
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00BCD4).withOpacity(0.1),
+                              color: theme.primaryColor.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.payment,
-                              color: Color(0xFF00695C),
+                              color: theme.primaryColor,
                               size: 20,
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Pilih Metode Pembayaran',
+                          Text(
+                            l10n.selectPaymentMethod,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF00695C),
+                              color: theme.textTheme.titleLarge?.color,
                             ),
                           ),
                         ],
@@ -333,8 +340,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                       const SizedBox(height: 24),
 
                       _buildPaymentOption(
-                        title: 'Transfer Bank',
-                        subtitle: 'BCA, Mandiri, BNI, BRI & bank lainnya',
+                        title: l10n.bankTransfer,
+                        subtitle: l10n.bankTransferSubtitle,
                         value: 'Transfer Bank',
                         icon: Icons.account_balance_outlined,
                         primaryColor: const Color(0xFF00BCD4),
@@ -344,8 +351,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                       const SizedBox(height: 16),
 
                       _buildPaymentOption(
-                        title: 'Dompet Digital',
-                        subtitle: 'GoPay, OVO, DANA, ShopeePay & LinkAja',
+                        title: l10n.digitalWallet,
+                        subtitle: l10n.digitalWalletSubtitle,
                         value: 'Dompet Digital',
                         icon: Icons.account_balance_wallet_outlined,
                         primaryColor: const Color(0xFF26A69A),
@@ -355,8 +362,8 @@ class _PaymentScreenState extends State<PaymentScreen>
                       const SizedBox(height: 16),
 
                       _buildPaymentOption(
-                        title: 'Kartu Kredit/Debit',
-                        subtitle: 'Visa, MasterCard & kartu bank lainnya',
+                        title: l10n.creditDebitCard,
+                        subtitle: l10n.creditDebitCardSubtitle,
                         value: 'Kartu Kredit',
                         icon: Icons.credit_card_outlined,
                         primaryColor: const Color(0xFF00ACC1),
@@ -368,10 +375,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0F7FA),
+                          color: theme.primaryColor.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFFB2EBF2),
+                            color: theme.primaryColor.withOpacity(0.2),
                             width: 1,
                           ),
                         ),
@@ -380,12 +387,12 @@ class _PaymentScreenState extends State<PaymentScreen>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00BCD4).withOpacity(0.2),
+                                color: theme.primaryColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: const Icon(
+                              child: Icon(
                                 Icons.security_outlined,
-                                color: Color(0xFF00695C),
+                                color: theme.primaryColor,
                                 size: 20,
                               ),
                             ),
@@ -394,20 +401,20 @@ class _PaymentScreenState extends State<PaymentScreen>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'Transaksi Aman & Terpercaya',
+                                  Text(
+                                    l10n.secureTransaction,
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF00695C),
+                                      color: theme.textTheme.titleMedium?.color,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Data pembayaran Anda dilindungi',
+                                    l10n.paymentDataProtected,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey[600],
+                                      color: theme.textTheme.bodySmall?.color,
                                       height: 1.3,
                                     ),
                                   ),
@@ -427,7 +434,7 @@ class _PaymentScreenState extends State<PaymentScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(24),
                 topRight: Radius.circular(24),
@@ -479,9 +486,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                       children: [
                         const Icon(Icons.lock_outline, size: 22),
                         const SizedBox(width: 12),
-                        const Text(
-                          'Bayar Sekarang',
-                          style: TextStyle(
+                        Text(
+                          l10n.payNow,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.3,
@@ -514,16 +521,18 @@ class _PaymentScreenState extends State<PaymentScreen>
     required Color primaryColor,
     required Color secondaryColor,
   }) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
     final bool isSelected = _selectedPaymentMethod == value;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isSelected ? primaryColor : Colors.grey.withOpacity(0.2),
+          color: isSelected ? primaryColor : theme.dividerColor,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
@@ -560,12 +569,12 @@ class _PaymentScreenState extends State<PaymentScreen>
                       colors: [primaryColor, secondaryColor],
                     )
                         : null,
-                    color: isSelected ? null : Colors.grey[100],
+                    color: isSelected ? null : theme.dividerColor,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
                     icon,
-                    color: isSelected ? Colors.white : Colors.grey[600],
+                    color: isSelected ? Colors.white : theme.hintColor,
                     size: 24,
                   ),
                 ),
@@ -579,7 +588,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: isSelected ? const Color(0xFF00695C) : Colors.grey[700],
+                          color: isSelected ? primaryColor : theme.textTheme.titleMedium?.color,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -587,7 +596,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                         subtitle,
                         style: TextStyle(
                           fontSize: 13,
-                          color: isSelected ? Colors.grey[600] : Colors.grey[500],
+                          color: isSelected ? theme.hintColor : theme.textTheme.bodySmall?.color,
                           height: 1.3,
                         ),
                       ),
@@ -616,7 +625,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[300]!),
+                      border: Border.all(color: theme.dividerColor),
                       shape: BoxShape.circle,
                     ),
                   ),

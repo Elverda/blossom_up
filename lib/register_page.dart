@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -55,14 +56,14 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
   void dispose() {
     _animationController.dispose();
     _fadeController.dispose();
-    _usernameController.dispose(); // Diperbarui
+    _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _handleRegister() async {
-    if (_usernameController.text.isEmpty && // Diperbarui
+    if (_usernameController.text.isEmpty &&
         _passwordController.text.isEmpty &&
         _confirmPasswordController.text.isEmpty) {
       _navigateToLogin();
@@ -96,6 +97,9 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
   }
 
   void _processRegister() {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -105,11 +109,7 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
           padding: const EdgeInsets.all(30.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              colors: [Colors.green[50]!, Colors.white],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: theme.dialogBackgroundColor,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -134,21 +134,21 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Registrasi Berhasil!',
+              Text(
+                l10n.registrationSuccessTitle,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: theme.textTheme.titleLarge?.color,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                'Akun dengan username ${_usernameController.text} berhasil dibuat!',
+                l10n.registrationSuccessMessage(_usernameController.text),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey[600],
+                  color: theme.textTheme.bodySmall?.color,
                 ),
               ),
               const SizedBox(height: 24),
@@ -182,9 +182,9 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Masuk Sekarang',
-                    style: TextStyle(
+                  child: Text(
+                    l10n.loginNow,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -200,36 +200,40 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
   }
 
   String? _validateUsername(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Username harus diisi';
+      return l10n.usernameRequired;
     }
     if (value.length < 4) {
-      return 'Username minimal 4 karakter';
+      return l10n.usernameTooShort;
     }
     return null;
   }
 
   String? _validatePassword(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Password harus diisi';
+      return l10n.passwordRequired;
     }
     if (value.length < 6) {
-      return 'Password minimal 6 karakter';
+      return l10n.passwordTooShort;
     }
     return null;
   }
 
   String? _validateConfirmPassword(String? value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value == null || value.isEmpty) {
-      return 'Konfirmasi password harus diisi';
+      return l10n.confirmPasswordRequired;
     }
     if (value != _passwordController.text) {
-      return 'Password tidak sama';
+      return l10n.passwordsDoNotMatch;
     }
     return null;
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
@@ -238,6 +242,9 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
     String? Function(String?)? validator,
     TextInputType keyboardType = TextInputType.text,
   }) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
@@ -262,26 +269,26 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
             margin: const EdgeInsets.all(8),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.purple.withOpacity(0.1),
+              color: theme.primaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: Colors.purple[600], size: 20),
+            child: Icon(icon, color: theme.primaryColor, size: 20),
           ),
           hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[500]),
+          hintStyle: TextStyle(color: theme.hintColor),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: theme.cardColor,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+            borderSide: BorderSide(color: isDarkMode ? Colors.grey[800]! : Colors.grey[200]!, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.purple[400]!, width: 2),
+            borderSide: BorderSide(color: theme.primaryColor, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -304,17 +311,19 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Colors.purple[50]!,
-              Colors.pink[50]!,
-              Colors.white,
-            ],
+            colors: isDarkMode
+                ? [Colors.grey[900]!, Colors.purple[900]!, Colors.black]
+                : [Colors.purple[50]!, Colors.pink[50]!, Colors.white],
           ),
         ),
         child: SafeArea(
@@ -349,13 +358,13 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                               ),
                             ],
                           ),
-                          child: const Column(
+                          child: Column(
                             children: [
-                              Icon(Icons.person_add, color: Colors.white, size: 32),
-                              SizedBox(height: 8),
+                              const Icon(Icons.person_add, color: Colors.white, size: 32),
+                              const SizedBox(height: 8),
                               Text(
-                                'DAFTAR AKUN BARU',
-                                style: TextStyle(
+                                l10n.createAccountHeader,
+                                style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -363,10 +372,10 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
-                                'Bergabunglah dengan kami di blossom',
-                                style: TextStyle(
+                                l10n.joinUsMessage,
+                                style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.white70,
                                 ),
@@ -410,15 +419,17 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                       child: Column(
                         children: [
                           _buildTextField(
+                            context: context,
                             controller: _usernameController,
-                            hintText: 'Masukkan username Anda',
+                            hintText: l10n.enterUsername,
                             icon: Icons.person_outline,
                             validator: _validateUsername,
                             keyboardType: TextInputType.text,
                           ),
                           _buildTextField(
+                            context: context,
                             controller: _passwordController,
-                            hintText: 'Buat password Anda',
+                            hintText: l10n.createYourPassword,
                             icon: Icons.lock_outline,
                             obscureText: !_isPasswordVisible,
                             validator: _validatePassword,
@@ -427,14 +438,15 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                                 _isPasswordVisible
                                     ? Icons.visibility_outlined
                                     : Icons.visibility_off_outlined,
-                                color: Colors.grey[600],
+                                color: theme.hintColor,
                               ),
                               onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
                             ),
                           ),
                           _buildTextField(
+                            context: context,
                             controller: _confirmPasswordController,
-                            hintText: 'Konfirmasi password Anda',
+                            hintText: l10n.confirmYourPassword,
                             icon: Icons.lock_outline,
                             obscureText: !_isConfirmPasswordVisible,
                             validator: _validateConfirmPassword,
@@ -443,7 +455,7 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                                 _isConfirmPasswordVisible
                                     ? Icons.visibility_outlined
                                     : Icons.visibility_off_outlined,
-                                color: Colors.grey[600],
+                                color: theme.hintColor,
                               ),
                               onPressed: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
                             ),
@@ -491,14 +503,14 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                               strokeWidth: 2,
                             ),
                           )
-                              : const Row(
+                              : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.person_add, color: Colors.white),
-                              SizedBox(width: 8),
+                              const Icon(Icons.person_add, color: Colors.white),
+                              const SizedBox(width: 8),
                               Text(
-                                'Daftar Sekarang',
-                                style: TextStyle(
+                                l10n.registerNow,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -518,9 +530,9 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Sudah punya akun? ',
+                              l10n.alreadyHaveAccount,
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: theme.hintColor,
                                 fontSize: 16,
                               ),
                             ),
@@ -534,9 +546,9 @@ class _RegisterPageState extends State<RegisterPage> with TickerProviderStateMix
                                   ),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                child: const Text(
-                                  'Masuk Disini',
-                                  style: TextStyle(
+                                child: Text(
+                                  l10n.loginHere,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,

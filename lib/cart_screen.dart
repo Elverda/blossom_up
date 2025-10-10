@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/payment_screen.dart';
 
 class CartScreen extends StatefulWidget {
@@ -14,7 +15,6 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateMixin {
   late List<Map<String, dynamic>> _cart;
-  final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
   @override
   void initState() {
@@ -27,6 +27,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   }
 
   void _removeItem(int index) {
+    final l10n = AppLocalizations.of(context)!;
     final removedItem = _cart[index];
     setState(() {
       _cart.removeAt(index);
@@ -35,9 +36,9 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${removedItem['nama']} dihapus dari keranjang'),
+        content: Text(l10n.itemRemovedFromCart(removedItem['nama'] ?? l10n.nameNotAvailable)),
         action: SnackBarAction(
-          label: 'UNDO',
+          label: l10n.undo,
           onPressed: () {
             setState(() {
               _cart.insert(index, removedItem);
@@ -50,10 +51,11 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   }
 
   void _navigateToPayment() {
+    final l10n = AppLocalizations.of(context)!;
     if (_cart.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Keranjang kosong, tidak ada yang bisa di-checkout.'),
+        SnackBar(
+          content: Text(l10n.cartEmptyCannotCheckout),
           backgroundColor: Colors.orange,
         ),
       );
@@ -74,16 +76,18 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final currencyFormatter = NumberFormat.currency(locale: locale, symbol: 'Rp ', decimalDigits: 0);
+
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context, _cart);
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[100],
         appBar: AppBar(
-          title: const Text('Keranjang Belanja'),
-          backgroundColor: Colors.deepPurple[400],
+          title: Text(l10n.shoppingCartTitle),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -95,12 +99,11 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.shopping_cart_outlined, size: 100, color: Colors.grey[400]),
+              Icon(Icons.shopping_cart_outlined, size: 100, color: theme.hintColor.withOpacity(0.5)),
               const SizedBox(height: 24),
               Text(
-                'Keranjang Anda masih kosong',
-                // FIX: Mengganti headline6 dengan titleLarge
-                style: theme.textTheme.titleLarge?.copyWith(color: Colors.grey[500]),
+                l10n.yourCartIsEmpty,
+                style: theme.textTheme.titleLarge?.copyWith(color: theme.hintColor),
               ),
             ],
           ),
@@ -130,7 +133,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                     child: Card(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       elevation: 4,
-                      shadowColor: Colors.deepPurple.withOpacity(0.2),
+                      shadowColor: theme.primaryColor.withOpacity(0.2),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(12),
                         leading: ClipRRect(
@@ -141,25 +144,23 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                             height: 70,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                            const Icon(Icons.broken_image, size: 70, color: Colors.grey),
+                            Icon(Icons.broken_image, size: 70, color: theme.hintColor),
                           ),
                         ),
                         title: Text(
-                          item['nama'] ?? 'Nama tidak tersedia',
-                          // FIX: Mengganti subtitle1 dengan titleMedium
+                          item['nama'] ?? l10n.nameNotAvailable,
                           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Text(
                           currencyFormatter.format(item['harga'] ?? 0),
-                          // FIX: Mengganti subtitle2 dengan titleSmall
                           style: theme.textTheme.titleSmall?.copyWith(
-                            color: Colors.deepPurple[700],
+                            color: theme.primaryColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         trailing: IconButton(
                           icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent, size: 28),
-                          tooltip: 'Hapus item',
+                          tooltip: l10n.removeItem,
                           onPressed: () => _removeItem(index),
                         ),
                       ),
@@ -171,7 +172,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: theme.cardColor,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -191,14 +192,14 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Total Harga',
+                        l10n.totalPrice,
                         style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         currencyFormatter.format(_totalPrice),
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: theme.primaryColor,
                         ),
                       ),
                     ],
@@ -209,17 +210,17 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                     child: ElevatedButton(
                       onPressed: _navigateToPayment,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: theme.primaryColor,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                         elevation: 5,
-                        shadowColor: Colors.deepPurpleAccent,
+                        shadowColor: theme.primaryColor.withOpacity(0.5),
                       ),
-                      child: const Text(
-                        'Checkout Sekarang',
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w600),
+                      child: Text(
+                        l10n.checkoutNow,
+                        style: TextStyle(fontSize: 18, color: theme.colorScheme.onPrimary, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/shop_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -33,18 +34,24 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF00BCD4), // Teal 400
-              Color(0xFF4DD0E1), // Teal 300
-              Color(0xFFE0F2F1), // Teal 50
-            ],
-            stops: [0.0, 0.6, 1.0],
+            colors: isDarkMode
+                ? [Colors.grey[900]!, Colors.teal[900]!, Colors.black]
+                : [
+                    const Color(0xFF00BCD4),
+                    const Color(0xFF4DD0E1),
+                    const Color(0xFFE0F2F1),
+                  ],
+            stops: const [0.0, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
@@ -58,7 +65,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                     width: 120,
                     height: 120,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.cardColor,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
@@ -71,7 +78,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                     child: Container(
                       margin: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00ACC1), // Teal 600
+                        color: Colors.teal[600],
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -88,7 +95,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                     padding: const EdgeInsets.all(32),
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
@@ -100,12 +107,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          'Pembayaran Berhasil!',
+                        Text(
+                          l10n.paymentSuccessTitle,
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF00695C),
+                            color: isDarkMode ? Colors.teal[300] : const Color(0xFF00695C),
                             letterSpacing: -0.5,
                           ),
                           textAlign: TextAlign.center,
@@ -117,7 +124,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                           width: 60,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF26A69A),
+                            color: Colors.teal[400],
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -125,10 +132,10 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         const SizedBox(height: 24),
 
                         Text(
-                          'Terima kasih telah berbelanja di Blossom by Izora Elverda. Pesanan Anda sedang kami siapkan dengan penuh cinta.',
+                          l10n.paymentSuccessMessage,
                           style: TextStyle(
                             fontSize: 17,
-                            color: Colors.grey[600],
+                            color: theme.textTheme.bodyMedium?.color,
                             height: 1.5,
                             letterSpacing: 0.1,
                           ),
@@ -140,10 +147,10 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF0FDFA), // Teal 25
+                            color: theme.primaryColor.withOpacity(0.05),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color(0xFFB2DFDB), // Teal 100
+                              color: theme.primaryColor.withOpacity(0.2),
                               width: 1,
                             ),
                           ),
@@ -152,12 +159,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF26A69A).withOpacity(0.1),
+                                  color: theme.primaryColor.withOpacity(0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
                                   Icons.local_florist,
-                                  color: const Color(0xFF00695C),
+                                  color: isDarkMode ? Colors.teal[200] : const Color(0xFF00695C),
                                   size: 24,
                                 ),
                               ),
@@ -166,20 +173,20 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
-                                      'Email konfirmasi',
+                                    Text(
+                                      l10n.confirmationEmail,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Color(0xFF00695C),
+                                        color: isDarkMode ? Colors.teal[200] : const Color(0xFF00695C),
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Telah dikirim ke ${widget.email}',
+                                      l10n.sentToEmail(widget.email),
                                       style: TextStyle(
                                         fontSize: 13,
-                                        color: Colors.grey[600],
+                                        color: theme.textTheme.bodySmall?.color,
                                       ),
                                     ),
                                   ],
@@ -201,7 +208,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF00ACC1).withOpacity(0.3),
+                          color: Colors.teal.withOpacity(0.3),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -218,7 +225,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00ACC1), // Teal 600
+                        backgroundColor: Colors.teal[400],
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
@@ -227,12 +234,12 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.storefront_rounded, size: 22),
-                          SizedBox(width: 12),
+                        children: [
+                          const Icon(Icons.storefront_rounded, size: 22),
+                          const SizedBox(width: 12),
                           Text(
-                            'Kembali ke Toko',
-                            style: TextStyle(
+                            l10n.backToShop,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0.2,
