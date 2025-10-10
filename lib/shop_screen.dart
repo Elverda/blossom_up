@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:solo/chat_admin_screen.dart';
 import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/login_page.dart';
 import 'package:solo/main.dart';
@@ -520,6 +521,15 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
             floating: false,
             pinned: true,
             elevation: 2,
+            leading: IconButton(
+              icon: const Icon(Icons.chat_bubble_outline_rounded),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ChatAdminScreen()),
+                );
+              },
+            ),
             actions: [
               PopupMenuButton<ThemeMode>(
                 icon: const Icon(Icons.brightness_4_outlined),

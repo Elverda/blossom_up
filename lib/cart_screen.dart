@@ -15,6 +15,31 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateMixin {
   late List<Map<String, dynamic>> _cart;
+  final _voucherController = TextEditingController();
+  Map<String, dynamic>? _appliedVoucher;
+  double _discount = 0.0;
+
+  // Database voucher statis
+  final List<Map<String, dynamic>> _vouchers = [
+    {
+      'code': 'HEMAT10',
+      'type': 'percentage',
+      'value': 10,
+      'minPurchase': 0,
+    },
+    {
+      'code': 'DISKON15K',
+      'type': 'fixed',
+      'value': 15000,
+      'minPurchase': 0,
+    },
+    {
+      'code': 'SUPERDEAL',
+      'type': 'fixed',
+      'value': 25000,
+      'minPurchase': 150000,
+    },
+  ];
 
   @override
   void initState() {
@@ -22,8 +47,53 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
     _cart = List.from(widget.cartItems);
   }
 
-  double get _totalPrice {
+  @override
+  void dispose() {
+    _voucherController.dispose();
+    super.dispose();
+  }
+
+  double get _subtotal {
     return _cart.fold(0, (sum, item) => sum + (item['harga'] ?? 0));
+  }
+
+  double get _finalPrice {
+    return _subtotal - _discount;
+  }
+
+  void _applyVoucher() {
+    final code = _voucherController.text.toUpperCase();
+    final voucher = _vouchers.firstWhere((v) => v['code'] == code, orElse: () => {});
+
+    if (voucher.isEmpty) {
+      _showErrorSnackBar('Kode voucher tidak valid');
+      return;
+    }
+
+    if (_subtotal < voucher['minPurchase']) {
+      _showErrorSnackBar('Minimal belanja untuk voucher ini adalah Rp ${voucher['minPurchase']}');
+      return;
+    }
+
+    setState(() {
+      if (voucher['type'] == 'percentage') {
+        _discount = _subtotal * (voucher['value'] / 100);
+      } else {
+        _discount = voucher['value'].toDouble();
+      }
+      _appliedVoucher = voucher;
+    });
+
+    _showSuccessSnackBar('Voucher berhasil diterapkan!');
+  }
+
+  void _removeVoucher() {
+    setState(() {
+      _discount = 0.0;
+      _appliedVoucher = null;
+    });
+    _voucherController.clear();
+    _showSuccessSnackBar('Voucher dihapus');
   }
 
   void _removeItem(int index) {
@@ -31,6 +101,10 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
     final removedItem = _cart[index];
     setState(() {
       _cart.removeAt(index);
+      // Recalculate discount if a voucher is applied
+      if (_appliedVoucher != null) {
+        _applyVoucher();
+      }
     });
 
     ScaffoldMessenger.of(context).clearSnackBars();
@@ -42,6 +116,9 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
           onPressed: () {
             setState(() {
               _cart.insert(index, removedItem);
+              if (_appliedVoucher != null) {
+                _applyVoucher();
+              }
             });
           },
         ),
@@ -53,12 +130,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   void _navigateToPayment() {
     final l10n = AppLocalizations.of(context)!;
     if (_cart.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.cartEmptyCannotCheckout),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showErrorSnackBar(l10n.cartEmptyCannotCheckout);
       return;
     }
     Navigator.push(
@@ -66,10 +138,22 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
       MaterialPageRoute(
         builder: (context) => PaymentScreen(
           cartItems: _cart,
-          totalPrice: _totalPrice,
+          totalPrice: _finalPrice, // Mengirim harga setelah diskon
           email: widget.email,
         ),
       ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 
@@ -144,7 +228,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                             height: 70,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.broken_image, size: 70, color: theme.hintColor),
+                                Icon(Icons.broken_image, size: 70, color: theme.hintColor),
                           ),
                         ),
                         title: Text(
@@ -170,7 +254,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
                 color: theme.cardColor,
                 boxShadow: [
@@ -188,6 +272,73 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Voucher Section
+                  if (_appliedVoucher == null)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _voucherController,
+                            decoration: const InputDecoration(
+                              hintText: 'Masukkan kode voucher',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _applyVoucher,
+                          child: const Text('Terapkan'),
+                        ),
+                      ],
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Voucher Diterapkan: ${_appliedVoucher!['code']}',
+                            style: TextStyle(color: Colors.green[800], fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close, color: Colors.green[800]),
+                            onPressed: _removeVoucher,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+
+                  // Price Details
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Subtotal', style: theme.textTheme.bodyLarge),
+                      Text(currencyFormatter.format(_subtotal), style: theme.textTheme.bodyLarge),
+                    ],
+                  ),
+                  if (_discount > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Diskon Voucher', style: TextStyle(color: Colors.green[700])),
+                          Text('- ${currencyFormatter.format(_discount)}', style: TextStyle(color: Colors.green[700])),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -196,7 +347,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                         style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        currencyFormatter.format(_totalPrice),
+                        currencyFormatter.format(_finalPrice),
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: theme.primaryColor,
