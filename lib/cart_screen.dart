@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/payment_screen.dart';
+import 'package:solo/tracking_map_screen.dart';
 
 class CartScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
@@ -18,6 +20,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   final _voucherController = TextEditingController();
   Map<String, dynamic>? _appliedVoucher;
   double _discount = 0.0;
+  LatLng? _deliveryLocation; // <-- VARIABEL UNTUK LOKASI PENGIRIMAN
 
   // Database voucher statis
   final List<Map<String, dynamic>> _vouchers = [
@@ -133,16 +136,37 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
       _showErrorSnackBar(l10n.cartEmptyCannotCheckout);
       return;
     }
+    if (_deliveryLocation == null) {
+      _showErrorSnackBar('Silakan pilih lokasi pengiriman terlebih dahulu.');
+      return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PaymentScreen(
           cartItems: _cart,
-          totalPrice: _finalPrice, // Mengirim harga setelah diskon
+          totalPrice: _finalPrice,
           email: widget.email,
+          deliveryLocation: _deliveryLocation!, // <-- LOKASI DIKIRIM KE HALAMAN PEMBAYARAN
         ),
       ),
     );
+  }
+
+  void _selectDeliveryLocation() async {
+    final selectedLocation = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TrackingMapScreen(),
+      ),
+    );
+
+    if (selectedLocation != null) {
+      setState(() {
+        _deliveryLocation = selectedLocation;
+      });
+      _showSuccessSnackBar('Lokasi pengiriman berhasil dipilih!');
+    }
   }
 
   void _showErrorSnackBar(String message) {
@@ -314,6 +338,26 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                         ],
                       ),
                     ),
+
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+
+                  // BAGIAN LOKASI PENGIRIMAN (BARU)
+                  ListTile(
+                    leading: Icon(Icons.location_on_outlined, color: theme.primaryColor),
+                    title: const Text('Lokasi Pengiriman'),
+                    subtitle: Text(
+                      _deliveryLocation == null
+                          ? 'Belum dipilih'
+                          : 'Lat: ${_deliveryLocation!.latitude.toStringAsFixed(5)}, Lng: ${_deliveryLocation!.longitude.toStringAsFixed(5)}',
+                    ),
+                    trailing: TextButton(
+                      onPressed: _selectDeliveryLocation,
+                      child: const Text('Pilih'),
+                    ),
+                    contentPadding: EdgeInsets.zero,
+                  ),
 
                   const SizedBox(height: 16),
                   const Divider(),

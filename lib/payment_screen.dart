@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:latlong2/latlong.dart'; // <-- IMPORT TAMBAHAN
 import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/payment_success_screen.dart';
 
@@ -7,12 +8,14 @@ class PaymentScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cartItems;
   final double totalPrice;
   final String email;
+  final LatLng deliveryLocation; // <-- TAMBAHKAN PARAMETER LOKASI
 
   const PaymentScreen({
     Key? key,
     required this.cartItems,
     required this.totalPrice,
     required this.email,
+    required this.deliveryLocation, // <-- TAMBAHKAN PARAMETER LOKASI
   }) : super(key: key);
 
   @override
@@ -160,7 +163,10 @@ class _PaymentScreenState extends State<PaymentScreen>
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
-          builder: (context) => PaymentSuccessScreen(email: widget.email),
+          builder: (context) => PaymentSuccessScreen(
+            email: widget.email,
+            deliveryLocation: widget.deliveryLocation, // <-- LOKASI DIOPER KE HALAMAN SUKSES
+          ),
         ),
             (Route<dynamic> route) => false,
       );
