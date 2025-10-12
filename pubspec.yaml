@@ -25,7 +25,7 @@ dependencies:
   webview_flutter: ^4.8.0
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
-  http: ^1.2.1 # <-- DITAMBAHKAN
+  http: ^1.2.1
 
 dev_dependencies:
   flutter_test:

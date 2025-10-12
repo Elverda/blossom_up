@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart'; // <-- IMPORT TAMBAHAN
+import 'package:latlong2/latlong.dart';
 import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/shop_screen.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -7,7 +7,7 @@ import 'package:solo/tracking_map_screen.dart';
 
 class PaymentSuccessScreen extends StatefulWidget {
   final String email;
-  final LatLng deliveryLocation; // <-- TAMBAHKAN PARAMETER LOKASI
+  final LatLng deliveryLocation;
 
   const PaymentSuccessScreen({
     Key? key,
@@ -269,7 +269,7 @@ class _PaymentSuccessScreenState extends State<PaymentSuccessScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => TrackingMapScreen(
-                                destination: widget.deliveryLocation, // <-- LOKASI DIKIRIM KE HALAMAN PETA
+                                destination: widget.deliveryLocation,
                               ),
                             ),
                           );

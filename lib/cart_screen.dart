@@ -20,9 +20,8 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
   final _voucherController = TextEditingController();
   Map<String, dynamic>? _appliedVoucher;
   double _discount = 0.0;
-  LatLng? _deliveryLocation; // <-- VARIABEL UNTUK LOKASI PENGIRIMAN
+  LatLng? _deliveryLocation;
 
-  // Database voucher statis
   final List<Map<String, dynamic>> _vouchers = [
     {
       'code': 'HEMAT10',
@@ -104,7 +103,6 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
     final removedItem = _cart[index];
     setState(() {
       _cart.removeAt(index);
-      // Recalculate discount if a voucher is applied
       if (_appliedVoucher != null) {
         _applyVoucher();
       }
@@ -147,7 +145,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
           cartItems: _cart,
           totalPrice: _finalPrice,
           email: widget.email,
-          deliveryLocation: _deliveryLocation!, // <-- LOKASI DIKIRIM KE HALAMAN PEMBAYARAN
+          deliveryLocation: _deliveryLocation!,
         ),
       ),
     );
@@ -296,7 +294,6 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Voucher Section
                   if (_appliedVoucher == null)
                     Row(
                       children: [
@@ -343,7 +340,6 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                   const Divider(),
                   const SizedBox(height: 16),
 
-                  // BAGIAN LOKASI PENGIRIMAN (BARU)
                   ListTile(
                     leading: Icon(Icons.location_on_outlined, color: theme.primaryColor),
                     title: const Text('Lokasi Pengiriman'),
@@ -363,7 +359,6 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
                   const Divider(),
                   const SizedBox(height: 16),
 
-                  // Price Details
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
