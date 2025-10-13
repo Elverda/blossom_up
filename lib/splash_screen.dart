@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:solo/models/pengguna.dart';
 import 'login_page.dart';
-import 'home_page.dart'; // Asumsi kita akan membuat file ini
+import 'home_page.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -56,20 +56,17 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkLoginStatus() async {
-    // Wait for animations to complete + a little extra
     await Future.delayed(const Duration(milliseconds: 2500));
 
     final pengguna = await Pengguna.loadFromPreferences();
 
-    if (mounted) { // Check if the widget is still in the tree
+    if (mounted) {
       if (pengguna != null) {
-        // User is logged in, go to HomePage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } else {
-        // User is not logged in, go to LoginPage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const LoginPage()),
