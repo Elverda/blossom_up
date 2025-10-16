@@ -83,7 +83,7 @@ class _TrackingMapScreenState extends State<TrackingMapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isSelectionMode ? 'Pilih Lokasi Pengiriman' : 'Lacak Pesanan Anda'),
+        title: Text(_isSelectionMode ? 'Pilih Lokasi Penerima Pesanan' : 'Lacak Pesanan Anda'),
         actions: [
           if (_isSelectionMode)
             IconButton(
@@ -125,7 +125,7 @@ class _TrackingMapScreenState extends State<TrackingMapScreen> {
               child: Container(
                 color: Colors.black.withOpacity(0.5),
                 padding: const EdgeInsets.all(8.0),
-                child: const Text('Ketuk pada peta untuk memilih lokasi pengiriman.', style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
+                child: const Text('Ketuk pada peta untuk memilih lokasi penerima pesanan.', style: TextStyle(color: Colors.white), textAlign: TextAlign.center),
               ),
             ),
           if (!_isSelectionMode && _isLoadingRoute)

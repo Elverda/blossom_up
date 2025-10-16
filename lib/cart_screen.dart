@@ -135,7 +135,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
       return;
     }
     if (_deliveryLocation == null) {
-      _showErrorSnackBar('Silakan pilih lokasi pengiriman terlebih dahulu.');
+      _showErrorSnackBar('Silakan pilih lokasi Penerima Pesanan terlebih dahulu.');
       return;
     }
     Navigator.push(
@@ -163,7 +163,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
       setState(() {
         _deliveryLocation = selectedLocation;
       });
-      _showSuccessSnackBar('Lokasi pengiriman berhasil dipilih!');
+      _showSuccessSnackBar('Lokasi Penerima Pesanan berhasil dipilih!');
     }
   }
 
@@ -342,7 +342,7 @@ class _CartScreenState extends State<CartScreen> with SingleTickerProviderStateM
 
                   ListTile(
                     leading: Icon(Icons.location_on_outlined, color: theme.primaryColor),
-                    title: const Text('Lokasi Pengiriman'),
+                    title: const Text('Lokasi Penerima Pesanan'),
                     subtitle: Text(
                       _deliveryLocation == null
                           ? 'Belum dipilih'
