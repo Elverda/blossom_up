@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:solo/models/pengguna.dart';
 import 'login_page.dart';
@@ -207,6 +208,22 @@ class _SplashScreenState extends State<SplashScreen>
                                 ),
                               ],
                             ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: const Icon(
+                            CupertinoIcons.heart_fill,
+                            color: Colors.white,
+                            size: 30,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black26,
+                                offset: Offset(0, 4),
+                                blurRadius: 8,
+                              ),
+                            ],
                           ),
                         ),
                       ],

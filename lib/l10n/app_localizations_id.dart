@@ -1,6 +1,10 @@
+// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
+// ignore_for_file: type=lint
+
+/// The translations for Indonesian (`id`).
 class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
@@ -84,7 +88,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get tulipSubtitle =>
-      'Pada abad ke-17 di Belanda, selama periode yang dikenal sebagai \'Tulip Mania,\' beberapa jenis umbi tulip langka harganya bisa setara dengan sebuah rumah mewah di Amsterdam. Fenomena ini dianggap sebagai salah satu gelembung spekulatif pertama dalam sejarah.';
+      'Pada abad ke-17 di Belanda, selama periode yang dikenal sebagai \'Tulip Mania\', beberapa jenis umbi tulip langka harganya bisa setara dengan sebuah rumah mewah di Amsterdam. Fenomena ini dianggap sebagai salah satu gelembung spekulatif pertama dalam sejarah.';
 
   @override
   String get orchidTitle => 'Anggrek: Salah Satu Keluarga Bunga Terbesar';

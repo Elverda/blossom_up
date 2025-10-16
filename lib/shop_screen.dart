@@ -5,6 +5,7 @@ import 'package:solo/login_page.dart';
 import 'package:solo/main.dart';
 import 'package:solo/search.dart';
 import 'cart_screen.dart';
+import 'package:badges/badges.dart' as badges;
 
 class ShopScreen extends StatefulWidget {
   final String email;
@@ -567,38 +568,17 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.shopping_cart_outlined),
-                    onPressed: _navigateToCart,
-                  ),
-                  if (_cart.isNotEmpty)
-                    Positioned(
-                      right: 8,
-                      top: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          color: Colors.red,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '${_cart.length}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                ],
+              badges.Badge(
+                position: badges.BadgePosition.topEnd(top: 0, end: 3),
+                showBadge: _cart.isNotEmpty,
+                badgeContent: Text(
+                  _cart.length.toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.shopping_cart_outlined),
+                  onPressed: _navigateToCart,
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.logout_outlined),

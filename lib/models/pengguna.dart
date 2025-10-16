@@ -22,21 +22,18 @@ class Pengguna {
     return 'ID Pengguna: $_userId, Username: $_username';
   }
 
-  // Method to save user data to SharedPreferences
   Future<void> saveToPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', _userId);
     await prefs.setString('username', _username);
   }
 
-  // Static method to load user data from SharedPreferences
   static Future<Pengguna?> loadFromPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('userId');
     final username = prefs.getString('username');
 
     if (userId != null && username != null) {
-      // Password is not saved for security reasons, so we pass an empty string.
       return Pengguna(userId, username, '');
     }
     return null;
