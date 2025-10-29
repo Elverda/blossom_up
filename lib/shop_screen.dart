@@ -1,16 +1,19 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:solo/chat_admin_screen.dart';
 import 'package:solo/l10n/app_localizations.dart';
 import 'package:solo/login_page.dart';
 import 'package:solo/main.dart';
 import 'package:solo/search.dart';
+import 'package:solo/shop_cubit.dart';
+import 'package:solo/shop_state.dart';
 import 'cart_screen.dart';
 import 'package:badges/badges.dart' as badges;
 import 'dart:math';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:dio/dio.dart';
 
-// **MODIFIED:** Now stores svgData instead of url
+// Avatar-related classes and logic are now in their own section or could be moved to their own files
 class Avatar {
   final int id;
   final String svgData;
@@ -20,22 +23,35 @@ class Avatar {
   Avatar({required this.id, required this.svgData, required this.seed, required this.style});
 }
 
-class ShopScreen extends StatefulWidget {
+// The main screen is now a StatelessWidget that wraps the page with a BlocProvider
+class ShopScreen extends StatelessWidget {
   final String email;
   const ShopScreen({Key? key, required this.email}) : super(key: key);
 
   @override
-  _ShopScreenState createState() => _ShopScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => ShopCubit()..loadBunga(), // Create and load initial data
+      child: ShopView(email: email), // The actual UI is in a separate widget
+    );
+  }
 }
 
-class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
+// The UI part of the screen, now a StatefulWidget to handle local UI state like AnimationControllers
+class ShopView extends StatefulWidget {
+  final String email;
+  const ShopView({Key? key, required this.email}) : super(key: key);
+
+  @override
+  _ShopViewState createState() => _ShopViewState();
+}
+
+class _ShopViewState extends State<ShopView> with TickerProviderStateMixin {
+  // Local UI state that doesn't belong in a Cubit
   List<Map<String, dynamic>> _cart = [];
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
   late TextEditingController _searchController;
-  List<Map<String, dynamic>> _filteredBunga = [];
-
-  final Dio _dio = Dio();
   Avatar? _selectedAvatar;
   List<Avatar> _avatars = [];
 
@@ -45,31 +61,14 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
     'open-peeps', 'personas', 'pixel-art', 'shapes'
   ];
 
-  final List<Map<String, dynamic>> bunga = [
-    {
-      "nama": "BUKET BUNGA MERAH",
-      "image": "assets/images/buket_merah.jpeg",
-      "harga": 90000,
-      "deskripsi": "Buket bunga merah yang memukau dengan keindahan klasik yang tak lekang oleh waktu.",
-      "makna": "Melambangkan cinta yang mendalam, gairah, dan keberanian. Bunga merah juga menyimbolkan kekuatan dan semangat yang berapi-api.",
-      "cocokUntuk": "Ungkapan cinta romantis, anniversary, Valentine\'s Day, atau saat ingin menyatakan perasaan cinta yang tulus.",
-      "jenisUtama": "Mawar merah, tulip merah, dan anyelir merah"
-    },
-    {"nama": "BUKET BUNGA PUTIH", "image": "assets/images/buket_putih.jpeg", "harga": 80000, "deskripsi": "Buket bunga putih yang elegan mencerminkan kemurnian dan kedamaian.", "makna": "Melambangkan kemurnian, kedamaian, ketulusan, dan harapan baru. Putih juga menyimbolkan spiritualitas dan kesucian hati.", "cocokUntuk": "Pernikahan, baptisan, wisuda, belasungkawa, atau momen sakral lainnya yang membutuhkan sentuhan kemurnian.", "jenisUtama": "Mawar putih, lily putih, dan baby\'s breath"},
-    {"nama": "BUKET BUNGA UNGU", "image": "assets/images/buket_ungu.jpeg", "harga": 99000, "deskripsi": "Buket bunga ungu yang mewah memancarkan aura keanggunan dan kemisteriusan.", "makna": "Melambangkan kemewahan, keanggunan, kreativitas, dan kebijaksanaan. Ungu juga menyimbolkan transformasi dan spiritualitas tinggi.", "cocokUntuk": "Penghormatan kepada orang terhormat, pencapaian prestasi, atau hadiah untuk orang yang dikagumi.", "jenisUtama": "Lavender, iris ungu, dan mawar ungu"},
-    {"nama": "BUKET BUNGA PINK", "image": "assets/images/buket_pink.jpeg", "harga": 80000, "deskripsi": "Buket bunga pink yang manis menyebarkan kehangatan dan kelembutan.", "makna": "Melambangkan kasih sayang yang lembut, apresiasi, rasa syukur, dan feminitas. Pink juga menyimbolkan kebahagiaan dan optimisme.", "cocokUntuk": "Ucapan terima kasih, hadiah untuk ibu, sahabat perempuan, atau saat ingin mengungkapkan kasih sayang yang tulus.", "jenisUtama": "Mawar pink, peony, dan sakura"},
-    {"nama": "BUKET BUNGA KUNING", "image": "assets/images/buket_kuning.jpeg", "harga": 95000, "deskripsi": "Buket bunga kuning yang ceria membawa semangat dan kegembiraan.", "makna": "Melambangkan kegembiraan, persahabatan, kehangatan matahari, dan energi positif. Kuning juga menyimbolkan keceriaan dan harapan.", "cocokUntuk": "Penyemangat untuk orang sakit, hadiah persahabatan, perayaan keberhasilan, atau saat ingin menyebarkan kebahagiaan.", "jenisUtama": "Bunga matahari, mawar kuning, dan tulip kuning"},
-    {"nama": "BUKET BUNGA MIX", "image": "assets/images/buket_mix.jpeg", "harga": 85000, "deskripsi": "Buket bunga campuran yang penuh warna mencerminkan keberagaman dan harmoni.", "makna": "Melambangkan keberagaman dalam persatuan, harmoni, dan perayaan kehidupan yang penuh warna. Mix juga menyimbolkan fleksibilitas dan adaptasi.", "cocokUntuk": "Perayaan ulang tahun, selamat tinggal, housewarming, atau saat ingin mengungkapkan berbagai perasaan sekaligus.", "jenisUtama": "Kombinasi berbagai jenis dan warna bunga"},
-    {"nama": "BUKET BUNGA BIRU", "image": "assets/images/buket_biru.jpeg", "harga": 85000, "deskripsi": "Buket bunga biru yang langka memancarkan ketenangan dan kedamaian.", "makna": "Melambangkan ketenangan, kepercayaan, loyalitas, dan kebijaksanaan. Biru juga menyimbolkan stabilitas dan kesetiaan yang abadi.", "cocokUntuk": "Ungkapan kepercayaan, hadiah untuk pria, acara formal, atau saat ingin menyampaikan pesan kesetiaan dan kejujuran.", "jenisUtama": "Hydrangea biru, delphinium, dan mawar biru"},
-    {"nama": "BUKET UANG", "image": "assets/images/buket_uang.jpeg", "harga": 99000, "deskripsi": "Buket uang kreatif yang unik dan praktis sebagai hadiah berkesan.", "makna": "Melambangkan kemakmuran, keberuntungan, dan doa untuk kesuksesan finansial. Juga menyimbolkan kreativitas dalam memberikan hadiah.", "cocokUntuk": "Wisuda, promosi kerja, pembukaan usaha baru, pernikahan, atau momen pencapaian finansial.", "jenisUtama": "Uang kertas yang dilipat artistik dengan hiasan bunga asli"},
-  ];
-
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _filteredBunga = List.from(bunga);
-    _searchController.addListener(_onSearchChanged);
+    _searchController.addListener(() {
+      // Call the cubit method on search change
+      context.read<ShopCubit>().filterBunga(_searchController.text);
+    });
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -81,15 +80,14 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _fadeController.dispose();
     super.dispose();
   }
 
-  // **MODIFIED:** This function now actually fetches SVG data from the network.
   Future<List<Avatar>> _fetchAvatars() async {
     final Random random = Random();
+    final Dio dio = Dio();
     List<Future<Avatar>> avatarFutures = [];
 
     for (int i = 0; i < 8; i++) {
@@ -97,12 +95,11 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
       final String randomStyle = avatarStyles[random.nextInt(avatarStyles.length)];
       final String url = 'https://api.dicebear.com/7.x/$randomStyle/svg?seed=$randomSeed';
 
-      // Create a future that will resolve to an Avatar object
-      final future = _dio.get(url).then((response) {
+      final future = dio.get(url).then((response) {
         if (response.statusCode == 200) {
           return Avatar(
             id: i + 1,
-            svgData: response.data, // Store the SVG string data
+            svgData: response.data,
             seed: randomSeed,
             style: randomStyle,
           );
@@ -112,8 +109,6 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
       });
       avatarFutures.add(future);
     }
-
-    // Wait for all network requests to complete
     final List<Avatar> newAvatars = await Future.wait(avatarFutures);
     return newAvatars;
   }
@@ -158,29 +153,21 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _onSearchChanged() {
+  void _addToCart(BungaItem item) {
     setState(() {
-      final query = _searchController.text.toLowerCase();
-      if (query.isEmpty) {
-        _filteredBunga = List.from(bunga);
-      } else {
-        _filteredBunga = bunga.where((item) {
-          return item['nama'].toLowerCase().contains(query);
-        }).toList();
-      }
-    });
-  }
-
-  void _addToCart(Map<String, dynamic> item) {
-    setState(() {
-      _cart.add(item);
+      // This logic can also be moved to a CartCubit later
+      _cart.add({
+        'nama': item.nama,
+        'image': item.image,
+        'harga': item.harga,
+      });
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(children: [
           const Icon(Icons.check_circle_outline, color: Colors.white),
           const SizedBox(width: 12),
-          Expanded(child: Text(AppLocalizations.of(context)!.itemAddedToCart(item["nama"]))),
+          Expanded(child: Text(AppLocalizations.of(context)!.itemAddedToCart(item.nama))),
         ]),
         backgroundColor: Colors.green.shade600,
         behavior: SnackBarBehavior.floating,
@@ -190,6 +177,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
     );
   }
 
+  // **FIXED: Restored the navigation logic**
   void _navigateToCart() async {
     if (!mounted) return;
     final result = await Navigator.push(
@@ -243,7 +231,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showProductDescription(Map<String, dynamic> item) {
+  void _showProductDescription(BungaItem item) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -285,7 +273,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
                                 child: Image.asset(
-                                  item["image"],
+                                  item.image,
                                   width: 80,
                                   height: 80,
                                   fit: BoxFit.cover,
@@ -297,7 +285,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      item["nama"],
+                                      item.nama,
                                       style: const TextStyle(
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold,
@@ -311,7 +299,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                                         borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: Text(
-                                        'Rp ${item["harga"].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                        'Rp ${item.harga.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                                         style: TextStyle(
                                           color: Colors.purple[700],
                                           fontWeight: FontWeight.bold,
@@ -327,28 +315,28 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                           const SizedBox(height: 24),
                           _buildInfoSection(
                             AppLocalizations.of(context)!.description,
-                            item["deskripsi"],
+                            item.deskripsi,
                             Icons.info_outline,
                             Colors.blue,
                           ),
                           const SizedBox(height: 20),
                           _buildInfoSection(
                             AppLocalizations.of(context)!.meaningAndSymbolism,
-                            item["makna"],
+                            item.makna,
                             Icons.favorite_outline,
                             Colors.red,
                           ),
                           const SizedBox(height: 20),
                           _buildInfoSection(
                             AppLocalizations.of(context)!.suitableFor,
-                            item["cocokUntuk"],
+                            item.cocokUntuk,
                             Icons.event_available,
                             Colors.green,
                           ),
                           const SizedBox(height: 20),
                           _buildInfoSection(
                             AppLocalizations.of(context)!.mainFlowerType,
-                            item["jenisUtama"],
+                            item.jenisUtama,
                             Icons.local_florist,
                             Colors.purple,
                           ),
@@ -452,7 +440,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildFlowerCard(Map<String, dynamic> item, int index) {
+  Widget _buildFlowerCard(BungaItem item, int index) {
     return Card(
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
@@ -468,7 +456,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
               child: Stack(
                 children: [
                   Image.asset(
-                    item["image"],
+                    item.image,
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
@@ -498,7 +486,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    item["nama"],
+                    item.nama,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 13,
@@ -512,7 +500,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Rp ${item["harga"].toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                        'Rp ${item.harga.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                         style: TextStyle(
                           color: Colors.purple[700],
                           fontWeight: FontWeight.bold,
@@ -602,7 +590,7 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
                         width: 40,
                         height: 40,
                         child: _selectedAvatar != null
-                            ? SvgPicture.string( // **MODIFIED:** Use SvgPicture.string
+                            ? SvgPicture.string(
                                 _selectedAvatar!.svgData,
                                 placeholderBuilder: (BuildContext context) => const CircularProgressIndicator(strokeWidth: 2),
                               )
@@ -754,23 +742,87 @@ class _ShopScreenState extends State<ShopScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.75,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                    (context, index) => FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: _buildFlowerCard(_filteredBunga[index], index),
+          BlocBuilder<ShopCubit, ShopState>(
+            builder: (context, state) {
+              if (state.searchQuery.isEmpty) {
+                return const SliverToBoxAdapter(child: SizedBox.shrink());
+              }
+              if (state.filteredBunga.isEmpty) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: Text('No flowers found.')),
+                  ),
+                );
+              }
+              return SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Card(
+                        elevation: 4,
+                        child: Column(
+                          children: List.generate(
+                            state.filteredBunga.length > 5 ? 5 : state.filteredBunga.length,
+                            (index) {
+                              final item = state.filteredBunga[index];
+                              return ListTile(
+                                leading: Image.asset(
+                                  item.image,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                                title: Text(item.nama),
+                                subtitle: Text('Rp ${item.harga.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}'),
+                                onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  _showProductDescription(item);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                childCount: _filteredBunga.length,
-              ),
-            ),
+              );
+            },
+          ),
+          BlocBuilder<ShopCubit, ShopState>(
+            builder: (context, state) {
+              if (state.status == ShopStatus.loading) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              } else if (state.status == ShopStatus.error) {
+                return SliverFillRemaining(
+                  child: Center(child: Text(state.errorMessage ?? 'An error occurred')),
+                );
+              } else if (state.status == ShopStatus.success) {
+                return SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                  sliver: SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                      childAspectRatio: 0.75,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                          (context, index) => FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: _buildFlowerCard(state.filteredBunga[index], index),
+                      ),
+                      childCount: state.filteredBunga.length,
+                    ),
+                  ),
+                );
+              }
+              return const SliverToBoxAdapter(child: SizedBox.shrink());
+            },
           ),
         ],
       ),
@@ -872,7 +924,6 @@ class _AvatarSelectorDialogState extends State<AvatarSelectorDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Preview
             Container(
               width: 100,
               height: 100,
@@ -885,7 +936,7 @@ class _AvatarSelectorDialogState extends State<AvatarSelectorDialog> {
                 ),
               ),
               child: _selectedAvatar != null
-                  ? SvgPicture.string( // **MODIFIED:** Use SvgPicture.string
+                  ? SvgPicture.string(
                       _selectedAvatar!.svgData,
                       placeholderBuilder: (context) => const CircularProgressIndicator(),
                     )
@@ -894,7 +945,6 @@ class _AvatarSelectorDialogState extends State<AvatarSelectorDialog> {
             const SizedBox(height: 20),
             const Text('Choose from options:', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            // Grid Area
             SizedBox(
               height: 200,
               child: _isLoading
@@ -941,7 +991,7 @@ class _AvatarSelectorDialogState extends State<AvatarSelectorDialog> {
                                       : null,
                                 ),
                                 child: ClipOval(
-                                  child: SvgPicture.string( // **MODIFIED:** Use SvgPicture.string
+                                  child: SvgPicture.string(
                                     avatar.svgData,
                                     placeholderBuilder: (context) => const CircularProgressIndicator(),
                                   ),
@@ -952,7 +1002,6 @@ class _AvatarSelectorDialogState extends State<AvatarSelectorDialog> {
                         ),
             ),
             const SizedBox(height: 20),
-            // Button
             ElevatedButton.icon(
               onPressed: _isLoading ? null : _loadAvatars,
               icon: _isLoading

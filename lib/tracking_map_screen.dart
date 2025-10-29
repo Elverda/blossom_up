@@ -22,6 +22,12 @@ class _TrackingMapScreenState extends State<TrackingMapScreen> {
 
   LatLng? _selectedLocation;
 
+  // Weather state variables
+  String? _temperature;
+  int? _weatherCode;
+  bool _isLoadingWeather = true;
+  String? _weatherError;
+
   bool get _isSelectionMode => widget.destination == null;
 
   @override
@@ -30,9 +36,11 @@ class _TrackingMapScreenState extends State<TrackingMapScreen> {
     _mapController = MapController();
 
     if (_isSelectionMode) {
-      _selectedLocation = const LatLng(-6.2088, 106.8456);
+      _selectedLocation = const LatLng(-6.2088, 106.8456); // Default Jakarta
+      _fetchWeather(_selectedLocation!); // Fetch weather for the initial selected location
     } else {
       _fetchRoute();
+      _fetchWeather(widget.destination!); // Fetch weather for the destination
     }
   }
 
@@ -66,16 +74,68 @@ class _TrackingMapScreenState extends State<TrackingMapScreen> {
     });
   }
 
+  Future<void> _fetchWeather(LatLng location) async {
+    setState(() {
+      _isLoadingWeather = true;
+      _weatherError = null;
+    });
+
+    final url = 'https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final currentWeather = data['current_weather'];
+        setState(() {
+          _temperature = currentWeather['temperature'].toString();
+          _weatherCode = currentWeather['weathercode'] as int?;
+        });
+      } else {
+        setState(() {
+          _weatherError = "Failed to load weather";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _weatherError = "Network error";
+      });
+    }
+    setState(() {
+      _isLoadingWeather = false;
+    });
+  }
+
   void _handleTap(TapPosition tapPosition, LatLng latlng) {
     if (!_isSelectionMode) return;
     setState(() {
       _selectedLocation = latlng;
     });
+    _fetchWeather(latlng); // **MODIFIED: Fetch weather on every tap in selection mode**
   }
 
   void _confirmSelection() {
     if (_selectedLocation != null) {
       Navigator.pop(context, _selectedLocation);
+    }
+  }
+
+  IconData _getWeatherIcon(int? code) {
+    if (code == null) return Icons.device_unknown;
+    switch (code) {
+      case 0: return Icons.wb_sunny; // Clear sky
+      case 1: return Icons.wb_cloudy; // Mainly clear
+      case 2: return Icons.cloud; // Partly cloudy
+      case 3: return Icons.cloud_off; // Overcast
+      case 45: case 48: return Icons.foggy; // Fog
+      case 51: case 53: case 55: return Icons.grain; // Drizzle
+      case 61: case 63: case 65: return Icons.water_drop; // Rain
+      case 66: case 67: return Icons.ac_unit; // Freezing Rain
+      case 71: case 73: case 75: return Icons.snowing; // Snow fall
+      case 80: case 81: case 82: return Icons.shower; // Rain showers
+      case 85: case 86: return Icons.snowshoeing; // Snow showers
+      case 95: case 96: case 99: return Icons.thunderstorm; // Thunderstorm
+      default: return Icons.wb_sunny;
     }
   }
 
@@ -133,6 +193,33 @@ class _TrackingMapScreenState extends State<TrackingMapScreen> {
               color: Colors.black.withOpacity(0.3),
               child: const Center(child: CircularProgressIndicator()),
             ),
+          // **MODIFIED: Weather overlay is now always visible**
+          Positioned(
+            top: _isSelectionMode ? 50 : 10, // Adjust position for selection mode banner
+            left: 10,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: _isLoadingWeather
+                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3))
+                    : _weatherError != null
+                        ? Row(children: [const Icon(Icons.error_outline, color: Colors.red), const SizedBox(width: 8), Text(_weatherError!)])
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(_getWeatherIcon(_weatherCode), color: Colors.blueAccent, size: 28),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${_temperature ?? '--'}°C',
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+              ),
+            ),
+          ),
           Positioned(
             bottom: 20, right: 20,
             child: Column(
